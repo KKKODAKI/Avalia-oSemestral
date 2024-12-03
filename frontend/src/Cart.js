@@ -3,98 +3,139 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [responseMessage, setResponseMessage] = useState('');
-  const userId = localStorage.getItem('userId');
+    const [cartItems, setCartItems] = useState([]);
+    const [responseMessage, setResponseMessage] = useState('');
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    // Buscar os produtos disponíveis para adicionar ao carrinho
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/products/allproducts');
-        setProducts(response.data);
-      } catch (err) {
-        console.error('Erro ao buscar todos os produtos', err);
-      }
-    };
-
-    // Buscar os itens do carrinho do usuário
-    const fetchCartItems = async () => {
-      try {
-        const response = await axios.get('localhost:8000/cart/userCarts?userId=', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        setCartItems(response.data);
-      } catch (err) {
-        console.error('Erro ao buscar os itens do carrinho', err);
-      }
-    };
-
-    fetchProducts();
-    fetchCartItems();
-  }, []);
-
-  const handleAddToCart = async (productId) => {
-    try {
-      const response = await axios.post('http://localhost:8000/carts/addProduct', { productId }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+    useEffect(() => {
+        if (!userId || !token) {
+            setResponseMessage('Usuário não autenticado. Faça login novamente.');
+            return;
         }
-      });
-      setResponseMessage(response.data.message);
-      // Atualizar o carrinho após adicionar o produto
-      const fetchCartItems = async () => {
-        try {
-          const response = await axios.get('localhost:8000/cart/userCarts?userId=', {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+
+        const fetchCart = async () => {
+            try {
+                console.log('Fetching cart with userId:', userId, 'and token:', token); // Log para verificar userId e token
+                const response = await axios.get(`http://localhost:8000/cart/userCarts?userId=${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                console.log('Cart response:', response.data); // Log para verificar a resposta do servidor
+                setCartItems(response.data.items);
+            } catch (err) {
+                console.error('Erro ao buscar o carrinho', err);
+                setCartItems([]); // Limpa os itens do carrinho em caso de erro
+                setResponseMessage('Erro ao buscar o carrinho. Verifique sua autenticação.');
             }
-          });
-          setCartItems(response.data);
-        } catch (err) {
-          console.error('Erro ao buscar os itens do carrinho', err);
-        }
-      };
-      fetchCartItems();
-    } catch (error) {
-        setResponseMessage(`Erro ao adicionar o produto ao carrinho${error}`);
-    }
-  };
+        };
 
-  return (
-    <div className="container mt-5">
-      <h3 className="text-center mb-4">Carrinho de Compras</h3>
-      <div className="row">
-        <div className="col-md-6">
-          <h4>Produtos Disponíveis</h4>
-          <ul className="list-group">
-            {products.map(product => (
-              <li key={product.id} className="list-group-item">
-                {product.nome} - R$ {product.preco}
-                <button className="btn btn-primary btn-sm float-end" onClick={() => handleAddToCart(product.id)}>
-                  Adicionar ao Carrinho
-                </button>
-              </li>
-            ))}
-          </ul>
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/products/allproducts');
+                setProducts(response.data);
+            } catch (err) {
+                console.error('Erro ao buscar todos os produtos', err);
+                setProducts([]); // Limpa os produtos em caso de erro
+                setResponseMessage('Erro ao buscar produtos.');
+            }
+        };
+
+        fetchCart();
+        fetchProducts();
+    }, [userId, token]);
+
+    const handleAddProduct = async () => {
+        if (!userId || !token) {
+            setResponseMessage('Usuário não autenticado. Faça login novamente.');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8000/cart/addProduct', {
+                userId,
+                productId: selectedProduct,
+                quantity
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setResponseMessage(response.data.message);
+            // Atualiza o carrinho após a adição
+            const updatedCart = await axios.get(`http://localhost:8000/cart/userCarts?userId=${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setCartItems(updatedCart.data.items);
+        } catch (error) {
+            setResponseMessage('Erro ao adicionar o produto ao carrinho');
+        }
+    };
+
+    const handleRemoveProduct = async (productId) => {
+        if (!userId || !token) {
+            setResponseMessage('Usuário não autenticado. Faça login novamente.');
+            return;
+        }
+
+        try {
+            const response = await axios.delete(`http://localhost:8000/cart/removeProduct?userId=${userId}&productId=${productId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setResponseMessage(response.data.message);
+            // Atualiza o carrinho após a remoção
+            const updatedCart = await axios.get(`http://localhost:8000/cart/userCarts?userId=${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setCartItems(updatedCart.data.items);
+        } catch (error) {
+            setResponseMessage('Erro ao remover o produto do carrinho');
+        }
+    };
+
+    return (
+        <div className="container mt-5">
+            <h3 className="text-center mb-4">Seu Carrinho</h3>
+            {responseMessage && <div className='alert alert-info mt-3'>{responseMessage}</div>}
+            {cartItems.length === 0 ? (
+                <p className="text-center">Seu carrinho está vazio.</p>
+            ) : (
+                <ul className="list-group mx-5">
+                    {cartItems.map(item => (
+                        <li key={item.productId} className="list-group-item text-center my-1 border border-dark rounded">
+                            <strong>Nome:</strong> {item.name}<br/>
+                            <strong>Quantidade:</strong> {item.quantity}<br/>
+                            <strong>Preço Total:</strong> R$ {item.totalPrice}<br/>
+                            <button className="btn btn-danger btn-sm mt-2" onClick={() => handleRemoveProduct(item.productId)}>Remover</button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+            <div className="mt-4">
+                <h4 className="text-center mb-3">Adicionar Produto ao Carrinho</h4>
+                <div className="form-group">
+                    <label className="fw-bold text-center d-block">Selecione um Produto:</label>
+                    <select className="form-control" value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
+                        <option value="">Selecione um produto</option>
+                        {products.map(product => (
+                            <option key={product.id} value={product.id}>{product.nome}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="form-group mt-3">
+                    <label className="fw-bold text-center d-block">Quantidade:</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        value={quantity}
+                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                        min="1"
+                    />
+                </div>
+                <button className="btn btn-primary btn-block mt-3" onClick={handleAddProduct}>Adicionar ao Carrinho</button>
+            </div>
         </div>
-        <div className="col-md-6">
-          <h4>Itens no Carrinho</h4>
-          <ul className="list-group">
-            {cartItems.map(item => (
-              <li key={item.id} className="list-group-item">
-                {item.Product.nome} - R$ {item.Product.preco}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      {responseMessage && <div className='alert alert-info mt-3'>{responseMessage}</div>}
-    </div>
-  );
+    );
 };
 
 export default Cart;

@@ -22,10 +22,12 @@ const UserLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/users/login/', formData);
+      console.log(response.data)
       if (response.status === 200) {
-        localStorage.setItem('token', response.data.token); // Armazena o token no localStorage
+        localStorage.setItem('token', response.data.Token); 
+        localStorage.setItem('userId', response.data.id);
         setResponseMessage('Login efetuado com sucesso!');
-        window.location.reload(); // Recarrega a página para atualizar o estado de login
+        //window.location.reload(); 
       } else {
         setResponseMessage('Erro ao efetuar login.');
       }
