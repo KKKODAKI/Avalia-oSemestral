@@ -27,7 +27,7 @@ const UserLogin = () => {
         localStorage.setItem('token', response.data.Token); 
         localStorage.setItem('userId', response.data.id);
         setResponseMessage('Login efetuado com sucesso!');
-        //window.location.reload(); 
+        window.location.reload(); 
       } else {
         setResponseMessage('Erro ao efetuar login.');
       }

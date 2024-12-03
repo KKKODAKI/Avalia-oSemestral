@@ -5,7 +5,11 @@ import ShowAllProducts from './ShowAllProducts';
 import DeleteProductById from './DeleteProductById';
 import UpdateProductByID from './UpdateProductByID';
 import UserLogin from './UserLogin';
+import SupplierDataForm from './SupplierDataForm';
+import ShowAllSuppliers from './ShowAllSuppliers';
+import DeleteSupplierById from './DeleteSupplierById';
 import Cart from './Cart';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -13,6 +17,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [showMenu, setShowMenu] = useState(false);
+  const [showSupplier, setShowSupplier] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -25,6 +30,7 @@ function App() {
 
   const handleNavClick = (page) => {
     setShowMenu(false);
+    setShowSupplier(false);
     setShowLogin(false);
     setCurrentPage(page);
   }
@@ -47,11 +53,34 @@ function App() {
           break;
       }
     setShowMenu(false);
+    setShowSupplier(false);
   }
+
+  const handleSupplierClick = (option) => {
+    switch (option) {
+      case 'createSupplier':
+        setCurrentPage('createSupplier');
+        break;
+      case 'showAllSuppliers':
+        setCurrentPage('showAllSuppliers');
+        break;
+      case 'deleteSupplierById':
+        setCurrentPage('deleteSupplierById');
+        break;
+      case 'updateSupplierById':
+        setCurrentPage('updateSupplierById');
+        break;
+      default:
+        break;
+    }
+  setShowMenu(false);
+  setShowSupplier(false);
+}
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setShowMenu(false);
+    setShowSupplier(false);
     setShowLogin(false);
     setIsLoggedIn(false);
     setCurrentPage('landing');
@@ -79,6 +108,9 @@ function App() {
             <li>
               <button className='nav-link btn' onClick={() => isLoggedIn ? handleNavClick('cart') : setShowLogin(!showLogin)}>Carrinho</button>
             </li>
+            <li>
+              <button className='nav-link btn' onClick={() => isLoggedIn ? setShowSupplier(!showSupplier) : setShowLogin(!showLogin)}>Fornecedor</button>
+            </li>
           </ul>
         </div>
       </nav>
@@ -90,6 +122,16 @@ function App() {
           <button className="dropdown-item" onClick={() => handleMenuClick('showAllProducts')}>Mostrar todos os produtos</button>
           <button className="dropdown-item" onClick={() => handleMenuClick('deleteProductById')}>Deletar produto</button>
           <button className="dropdown-item" onClick={() => handleMenuClick('updateProductById')}>Atualizar produto</button>
+        </div>
+      )}
+
+      {/* Menu Flutuante */}
+      {showSupplier && (
+        <div className="dropdown-menu show" style={{ position: 'absolute', right: '5px', top: '60px' }}>
+          <button className="dropdown-item" onClick={() => handleSupplierClick('createSupplier')}>Novo fornecedor</button>
+          <button className="dropdown-item" onClick={() => handleSupplierClick('showAllSuppliers')}>Mostrar todos os fornecedores</button>
+          <button className="dropdown-item" onClick={() => handleSupplierClick('deleteSupplierById')}>Deletar fornecedor</button>
+          <button className="dropdown-item" onClick={() => handleSupplierClick('updateSupplierById')}>Atualizar fornecedor</button>
         </div>
       )}
 
@@ -175,6 +217,42 @@ function App() {
           <div className="mt-4">
             <div>
               <Cart />
+            </div>
+          </div>
+        )}
+
+        {/* Criar Fornecedor */}
+        {currentPage === 'createSupplier' && isLoggedIn && (
+          <div className="mt-4">
+            <div>
+              <SupplierDataForm />
+            </div>
+          </div>
+        )}
+
+        {/* Mostrar todos os fornecedores */}
+        {currentPage === 'showAllSuppliers' && (
+          <div className="mt-4">
+            <div>
+              <ShowAllSuppliers />
+            </div>
+          </div>
+        )}
+
+        {/* Deletar fornecedor por id */}
+        {currentPage === 'deleteSupplierById' && isLoggedIn && (
+          <div className="mt-4">
+            <div>
+              <DeleteSupplierById />
+            </div>
+          </div>
+        )}
+
+        {/* Atualizar fornecedor por id */}
+        {currentPage === 'updateSupplierById' && isLoggedIn && (
+          <div className="mt-4">
+            <div>
+              <SupplierDataForm />
             </div>
           </div>
         )}

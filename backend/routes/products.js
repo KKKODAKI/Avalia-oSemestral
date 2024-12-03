@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Implementar as dependencias para o funcionamento da classe Cart
+// Implementar as dependencias para o funcionamento da classe product
 const db = require('../models'); 
 
 // Carregando as clases service e controller do product
