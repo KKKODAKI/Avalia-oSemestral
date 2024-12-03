@@ -5,6 +5,7 @@ import ShowAllProducts from './ShowAllProducts';
 import DeleteProductById from './DeleteProductById';
 import UpdateProductByID from './UpdateProductByID';
 import UserLogin from './UserLogin';
+import Cart from './Cart';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -75,6 +76,9 @@ function App() {
               {/*<button className='nav-link btn' onClick={() => setShowMenu(isLoggedIn ? !showMenu : showMenu) && setShowLogin(!isLoggedIn ? !showLogin : showLogin)}>Produtos</button>*/}
               <button className='nav-link btn' onClick={() => isLoggedIn ? setShowMenu(!showMenu) : setShowLogin(!showLogin)}>Produtos</button>
             </li>
+            <li>
+              <button className='nav-link btn' onClick={() => isLoggedIn ? handleNavClick('cart') : setShowLogin(!showLogin)}>Carrinho</button>
+            </li>
           </ul>
         </div>
       </nav>
@@ -128,11 +132,7 @@ function App() {
         )}
 
         {/* Sair */}
-        {currentPage === 'logout' && (
-          <div className="mt-4">
-            <div>Adicionar o Sair</div>
-          </div>
-        )}
+        {currentPage === 'logout'}
 
         {/* Criar Produtos */}
         {currentPage === 'createProducts' && isLoggedIn && (
@@ -166,6 +166,15 @@ function App() {
           <div className="mt-4">
             <div>
               <UpdateProductByID />
+            </div>
+          </div>
+        )}
+
+        {/* Carrinho */}
+        {currentPage === 'cart' && (
+          <div className="mt-4">
+            <div>
+              <Cart />
             </div>
           </div>
         )}

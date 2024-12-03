@@ -11,8 +11,7 @@ class CartService {
          
             let cart = await this.Cart.findOne({ where: { userId } });
             if (!cart) {
-
-                cart = await this.Cart.create({ userId, items: [] });
+                cart = await this.Cart.create({ userId, items: JSON.stringify([]) });
             }
         
             let items = cart.items || [];
@@ -29,7 +28,6 @@ class CartService {
             const itemIndex = items.findIndex(item => item.productId === productId);
         
             if (itemIndex > -1) {
-    
                 items[itemIndex].quantity += quantity;
                 items[itemIndex].totalPrice = items[itemIndex].quantity * product.preco;
             } else {
@@ -43,7 +41,7 @@ class CartService {
                 });
             }
         
-            cart.items = items;
+            cart.items = JSON.stringify(items);
             await cart.save();
             return cart;
         } catch (error) {
@@ -71,7 +69,7 @@ class CartService {
     
             items = items.filter(item => item.productId !== parseInt(productId));
     
-            cart.items = items;
+            cart.items = JSON.stringify(items);
             await cart.save();
             return cart;
         } catch (error) {
