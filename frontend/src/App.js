@@ -8,8 +8,8 @@ import UserLogin from './UserLogin';
 import SupplierDataForm from './SupplierDataForm';
 import ShowAllSuppliers from './ShowAllSuppliers';
 import DeleteSupplierById from './DeleteSupplierById';
+import UpdateSupplierById from './UpdateSupplierById';
 import Cart from './Cart';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -252,7 +252,7 @@ function App() {
         {currentPage === 'updateSupplierById' && isLoggedIn && (
           <div className="mt-4">
             <div>
-              <SupplierDataForm />
+              <UpdateSupplierById />
             </div>
           </div>
         )}

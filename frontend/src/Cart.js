@@ -28,7 +28,7 @@ const Cart = () => {
             } catch (err) {
                 console.error('Erro ao buscar o carrinho', err);
                 setCartItems([]); // Limpa os itens do carrinho em caso de erro
-                setResponseMessage('Erro ao buscar o carrinho. Verifique sua autenticação.');
+                setResponseMessage('O Carrinho está vazio.');
             }
         };
 

@@ -45,8 +45,8 @@ class SupplierController {
     async delete(req, res) {
         try {
             const { id } = req.query;
-            const deletedSupplier = await this.supplierService.deleteSupplier(id);
-            if (deletedSupplier){
+            const deletedSupplier = await this.supplierService.delete(id);
+            if (deletedSupplier) {
                 res.status(200).json({ message: 'Fornecedor deletado com sucesso.' });
             } else {
                 res.status(404).json({ error: 'Fornecedor não encontrado.' });

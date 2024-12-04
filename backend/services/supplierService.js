@@ -40,7 +40,7 @@ class SupplierService {
         }
     }
 
-    async deleteSupplier(id) {
+    async delete(id) {
         try {
             const supplier = await this.Supplier.findByPk(id);
             if (supplier) {
